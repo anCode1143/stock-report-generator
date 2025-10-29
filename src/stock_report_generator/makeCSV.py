@@ -10,8 +10,8 @@ class StockDataHandler:
     """
     def __init__(self, ticker):
         self.ticker = ticker.upper()
-        project_root = os.path.dirname(os.path.dirname(__file__))
-        self.csv_dir = os.path.join(project_root, "CSVs")
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.csv_dir = os.path.join(project_root, "data")
         self.file_path = os.path.join(self.csv_dir, f"{self.ticker}.csv")
         os.makedirs(self.csv_dir, exist_ok=True)
 
@@ -22,10 +22,10 @@ class StockDataHandler:
             print(f"❌ No data found for {self.ticker} with period={period}, interval={interval}")
             return None
 
-        # Flatten MultiIndex columns if they exist
+        # Flatten MultiIndex columns by taking only the first level (removes ticker suffix)
         if isinstance(stock.columns, pd.MultiIndex):
-            stock.columns = ['_'.join(col).strip() for col in stock.columns.values]
-
+            stock.columns = stock.columns.get_level_values(0)
+        
         stock.ta.rsi(close=stock["Close"], length=14, append=True)
         stock.ta.macd(close=stock["Close"], append=True)
         stock.ta.sma(close=stock["Close"], length=20, append=True)
@@ -55,14 +55,24 @@ class StockDataHandler:
             return False
 
 if __name__ == "__main__":
-    csv_directory = os.path.join(os.path.dirname(os.path.dirname(__file__)), "CSVs")
-    print(f"Target directory: {csv_directory}")
+    print("=== Stock Data Generator ===")
+    ticker = input("Enter stock ticker symbol (e.g., AAPL, TSLA): ").strip()
     
-    response = input("Do you want to proceed with cleaning all CSVs? (yes/no): ").lower().strip()
-    
-    if response == 'yes':
-        csv_files = glob.glob(os.path.join(csv_directory, "*.csv"))
-        if not csv_files:
-            print("No CSV files found to clean.")
+    if not ticker:
+        print("❌ No ticker provided. Exiting.")
     else:
-        print("Operation cancelled.")
+        handler = StockDataHandler(ticker)
+        
+        print(f"\nFetching data for {ticker}...")
+        csv_path = handler.fetch_and_prepare_data(period="6mo", interval="4h")
+        
+        if csv_path:
+            print(f"\n🧹 Cleaning data...")
+            success = handler.clean_csv(warmup_period=50)
+            
+            if success:
+                print(f"\nSuccessfully generated and cleaned {ticker}.csv")
+            else:
+                print(f"\nData fetched but cleaning failed.")
+        else:
+            print(f"\n❌ Failed to fetch data for {ticker}")

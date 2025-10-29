@@ -35,7 +35,7 @@ class PDFReportGenerator:
         """
         if graphs_path is None:
             # Use relative path from project root
-            self.graphs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "graphs")
+            self.graphs_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "graphs")
         else:
             self.graphs_path = graphs_path
         self.setup_styles()
@@ -508,7 +508,7 @@ if __name__ == "__main__":
         generator = PDFReportGenerator()
         
         # Convert all markdown reports to PDF
-        reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports")
+        reports_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "reports")
         pdf_files = generator.batch_convert(reports_dir)
         
         print(f"\\n✅ Successfully converted {len(pdf_files)} reports to PDF:")

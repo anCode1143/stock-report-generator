@@ -1,8 +1,8 @@
-from makeCSV import StockDataHandler
-from makeGraph import GraphGenerator
-from quantile import QuantileForecaster
-from gemini_report import integrate_with_main
-from pdf_generator import create_pdf_report
+from .makeCSV import StockDataHandler
+from .makeGraph import GraphGenerator
+from .quantile import QuantileForecaster
+from .gemini_report import integrate_with_main
+from .pdf_generator import create_pdf_report
 
 def run_pipeline():
     ticker = input("Enter a ticker for stock data: ")

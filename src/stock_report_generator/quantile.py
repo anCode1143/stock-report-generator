@@ -15,8 +15,8 @@ class QuantileForecaster:
         self.alpha = alpha
         self.window = window
         
-        self.project_root = os.path.dirname(os.path.dirname(__file__))
-        self.csv_path = os.path.join(self.project_root, "CSVs", f"{self.ticker}.csv")
+        self.project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.csv_path = os.path.join(self.project_root, "data", f"{self.ticker}.csv")
         self.output_path = os.path.join(self.project_root, "graphs", f"{self.ticker}_quantile_forecast.png")
         
         self.features = ["High", "Close", "Volume", "Low", "RSI_14", "MACD_12_26_9", "SMA_50"]
@@ -125,4 +125,4 @@ def makeQuantile(ticker, forecast_horizon=6, alpha=0.01, window=20):
         return None
 
 if __name__ == "__main__":
-    makeQuantile("tsla", window=20)
+    makeQuantile("NVDA", window=20)

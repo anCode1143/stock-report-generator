@@ -4,7 +4,7 @@ import pandas as pd
 import google.generativeai as genai
 from datetime import datetime
 from dotenv import load_dotenv
-from prompts import get_analysis_prompt
+from .prompts import get_analysis_prompt
 
 class GeminiStockReportGenerator:
     """
@@ -50,9 +50,9 @@ class GeminiStockReportGenerator:
         # Initialize model with fallbacks
         self._initialize_model()
         
-        # Base paths - use relative paths from project root
-        project_root = os.path.dirname(os.path.dirname(__file__))
-        self.csv_path = os.path.join(project_root, "CSVs") + "/"
+        # Base paths - go up from src/stock_report_generator to project root
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.csv_path = os.path.join(project_root, "data") + "/"
         self.graphs_path = os.path.join(project_root, "graphs") + "/"
     
     def _load_environment(self):
@@ -61,7 +61,7 @@ class GeminiStockReportGenerator:
         """
         # Get the directory of this script
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(script_dir)  # Go up one level to project root
+        project_root = os.path.dirname(os.path.dirname(script_dir))  # Go up two levels to project root
         
         # Try multiple .env locations in order of preference
         dotenv_locations = [
@@ -273,7 +273,7 @@ Recent Performance (last 10 periods):
                 return error_msg, None
             
             # Create reports directory if it doesn't exist
-            reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "reports")
+            reports_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "reports")
             os.makedirs(reports_dir, exist_ok=True)
             
             # Save report to file
@@ -370,6 +370,6 @@ if __name__ == "__main__":
         # Show file requirements for current ticker
         ticker = sys.argv[1] if len(sys.argv) > 1 else "LVMUY"
         print(f"\n📋 Required files for {ticker}:")
-        print(f"  • CSV: CSVs/{ticker.lower()}.csv")
+        print(f"  • CSV: data/{ticker.lower()}.csv")
         print(f"  • Graphs: graphs/MAs.png, graphs/macd.png, graphs/rsi.png")
         print(f"  • Forecast: graphs/{ticker}_quantile_forecast.png")

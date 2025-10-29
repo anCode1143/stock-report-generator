@@ -9,8 +9,8 @@ class GraphGenerator:
     """
     def __init__(self, ticker):
         self.ticker = ticker.upper()
-        project_root = os.path.dirname(os.path.dirname(__file__))
-        self.csv_path = os.path.join(project_root, "CSVs", f"{self.ticker}.csv")
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.csv_path = os.path.join(project_root, "data", f"{self.ticker}.csv")
         self.graphs_dir = os.path.join(project_root, "graphs")
         os.makedirs(self.graphs_dir, exist_ok=True)
         
