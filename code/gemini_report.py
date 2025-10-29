@@ -4,6 +4,7 @@ import pandas as pd
 import google.generativeai as genai
 from datetime import datetime
 from dotenv import load_dotenv
+from prompts import get_analysis_prompt
 
 class GeminiStockReportGenerator:
     """
@@ -184,28 +185,35 @@ Recent Performance (last 10 periods):
         
         return summary
     
-    def generate_report(self, ticker):
+    def generate_report(self, ticker, csv_path=None, graph_paths=None):
         """
         Generate a comprehensive stock report using Gemini 2.5 Pro.
-        Assumes CSV data and graph files already exist.
         
         Args:
             ticker (str): Stock ticker symbol
+            csv_path (str, optional): Path to CSV file. If None, uses default path.
+            graph_paths (dict, optional): Dictionary of graph paths. If None, uses default paths.
+                Expected keys: 'trend', 'macd', 'rsi', 'quantile'
             
         Returns:
-            str: Generated stock report
+            tuple: (report_text, report_filename) or (error_message, None)
         """
         try:
+            # Use provided CSV path or default
+            if csv_path is None:
+                csv_path = f"{self.csv_path}{ticker}.csv"
+            
             # Load CSV data summary
             data_summary = self._load_csv_summary(ticker)
             
-            # Prepare graph paths
-            graph_paths = {
-                'trend': f"{self.graphs_path}MAs.png",
-                'macd': f"{self.graphs_path}macd.png",
-                'rsi': f"{self.graphs_path}rsi.png",
-                'quantile': f"{self.graphs_path}{ticker}_quantile_forecast.png"
-            }
+            # Use provided graph paths or construct defaults
+            if graph_paths is None:
+                graph_paths = {
+                    'trend': f"{self.graphs_path}MAs.png",
+                    'macd': f"{self.graphs_path}macd.png",
+                    'rsi': f"{self.graphs_path}rsi.png",
+                    'quantile': f"{self.graphs_path}{ticker}_quantile_forecast.png"
+                }
             
             # Verify all required files exist
             missing_files = []
@@ -232,102 +240,9 @@ Recent Performance (last 10 periods):
                 encoded_images[graph_name] = self._encode_image(path)
                 print(f"✅ Encoded {graph_name} chart")
             
-            # Create comprehensive prompt for Gemini
-            prompt = f"""
-You are a senior stock analyst trader with 20+ years of experience in equity research and technical analysis. 
-
-You are preparing a comprehensive professional-grade investment report for {ticker}, intended for veteran retail traders and institutional ones alike. 
-Analyze the following data and charts to deliver a comprehensive, highly professional technical report with actionable investment recommendations.
-
-Here is a summary of relevant stock data of a 6 month time-span:
-{data_summary}
-
-I'm providing you with 3 key technical analysis charts. 
-All charts are based on the 6 month time-span with 24hr candles. 
-Use this timeframe in your analysis unless trends or signals suggest zooming in (intraday) or out (weekly/monthly)
-Charts:
-1. **Price Trend with Moving Averages**: Candlestick chart showing price action with SMA 20 and SMA 50 overlays
-2. **MACD Indicator**: Momentum indicator showing MACD line, signal line, histogram, and a black line for price
-3. **RSI Indicator**: Relative Strength Index showing overbought/oversold conditions (0-100 scale)
-
-Please provide a detailed, professional analysis covering:
-
-## EXECUTIVE SUMMARY
-- Current market position and key takeaways
-- Overall recommendation (Strong Buy/Buy/Hold/Sell/Strong Sell)
-- Target price and time horizon
-
-## TECHNICAL ANALYSIS
-### Price Action & Trend Analysis
-- Current price trend (bullish/bearish/sideways)
-- Key support and resistance levels with specific price points
-- Volume analysis and its implications
-
-### Moving Average Analysis
-- SMA 20 vs SMA 50 positioning and crossover signals
-- Price position relative to moving averages
-- Golden cross or death cross patterns
-
-### Momentum Indicators
-- MACD interpretation: signal line crossovers, histogram analysis
-- RSI levels: overbought (>70), oversold (<30), or neutral zones
-- Divergence patterns between price and indicators
-
-## INVESTMENT STRATEGY
-### Entry Strategy
-- Optimal entry points with specific price levels
-- Risk management stop-loss recommendations
-- Position sizing guidance
-
-### Exit Strategy
-- Take-profit levels based on technical resistance
-- Time-based exit considerations
-- Risk management protocols
-
-## RISK ASSESSMENT
-### Technical Risks
-- Chart pattern risks and failure scenarios
-- Volatility assessment based on recent price action
-- Market structure risks
-
-### Market Context
-- Broader market sentiment impact
-- Sector rotation considerations
-- Correlation with major indices
-
-## PRICE TARGETS & SCENARIOS
-Include rough probability weightings for each scenario (e.g., Bull Case: 30%, Base Case: 50%, Bear Case: 20%)
-
-### Bull Case Scenario
-- Catalysts that could drive higher prices
-- Technical breakout levels
-
-### Bear Case Scenario
-- Downside price targets and support levels
-- Risk factors that could pressure the stock
-- Technical breakdown levels
-
-### Base Case Scenario
-- Most likely price trajectory
-- Expected trading range
-- Key levels to monitor
-
-## ACTIONABLE RECOMMENDATIONS
-- Specific buy/sell/hold recommendations with price levels
-- Portfolio allocation suggestions
-- Monitoring checklist for key technical levels
-
-## NEXT CATALYSTS TO WATCH
-- Technical levels that could trigger significant moves
-- Time-based factors (earnings, events)
-- Market conditions to monitor
-
-Please make your analysis highly specific with exact price levels, percentages, and technical pattern names. 
-Use professional investment terminology and provide actionable insights that a real investor would expect.
-Experienced officals have spent important money, this must be of use to them.
-
-Report generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-            """
+            # Create comprehensive prompt using centralized prompt template
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            prompt = get_analysis_prompt(ticker, data_summary, timestamp)
             
             # Prepare content for Gemini
             content = [prompt]

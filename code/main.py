@@ -1,21 +1,24 @@
-from makeCSV import makeCSV
-from makeGraph import makeGraph
-from quantile import makeQuantile
-from cleanCSVs import clean_csv_file
+from makeCSV import StockDataHandler
+from makeGraph import GraphGenerator
+from quantile import QuantileForecaster
 from gemini_report import integrate_with_main
 from pdf_generator import create_pdf_report
-import os
 
 def run_pipeline():
     ticker = input("Enter a ticker for stock data: ")
 
+    # Initialize all components
+    data_handler = StockDataHandler(ticker)
+    graph_generator = GraphGenerator(ticker)
+    quantile_forecaster = QuantileForecaster(ticker)
+
     # Generate longer period data for quantile analysis
     print("[*] Generating Quantile Predictions...")
-    makeCSV(ticker, period="2y", interval="4h")
-    csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "CSVs", ticker + ".csv")
-    clean_csv_file(csv_path)
-    makeQuantile(ticker)
+    data_handler.fetch_and_prepare_data(period="2y", interval="4h")
+    data_handler.clean_csv()
+    quantile_forecaster.run()
 
+    # --- User Input for Main Report ---
     period = input("Enter a time frame for the stock (1d, 5d, 1mo, 3mo, 6mo, 1y): ")
     if period == "1d":
         interval = "2m"
@@ -31,10 +34,10 @@ def run_pipeline():
         interval = "1d"
 
     print("[*] Generating CSV...")
-    makeCSV(ticker, period=period, interval=interval)
+    data_handler.fetch_and_prepare_data(period=period, interval=interval)
 
     print("[*] Plotting data...")
-    makeGraph(ticker)
+    graph_generator.generate_all()
 
     # Generate AI-powered investment report
     print("[*] Initializing AI Report Generator...")
