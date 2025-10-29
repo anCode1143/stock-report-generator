@@ -1,8 +1,9 @@
+from .gemini_report import integrate_with_main
 from .makeCSV import StockDataHandler
 from .makeGraph import GraphGenerator
-from .quantile import QuantileForecaster
-from .gemini_report import integrate_with_main
 from .pdf_generator import create_pdf_report
+from .quantile import QuantileForecaster
+
 
 def run_pipeline():
     ticker = input("Enter a ticker for stock data: ")
@@ -42,7 +43,7 @@ def run_pipeline():
     # Generate AI-powered investment report
     print("[*] Initializing AI Report Generator...")
     ai_generator = integrate_with_main()
-    
+
     markdown_file = None
     if ai_generator:
         print("[*] Generating AI-powered investment report...")
@@ -66,6 +67,6 @@ def run_pipeline():
         if markdown_file:
             print("   • PDF reports with embedded technical charts")
 
-    
+
 if __name__ == "__main__":
     run_pipeline()

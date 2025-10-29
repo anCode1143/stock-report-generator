@@ -1,36 +1,42 @@
-# filepath: /Users/canyuatasever/Downloads/stock-report-generator/code/prompts.py
 """
 Prompt templates for Gemini AI stock analysis reports.
 Centralizes all prompt engineering for maintainability.
 """
 
+
 def get_analysis_prompt(ticker, data_summary, timestamp):
     """
     Generate the comprehensive analysis prompt for Gemini.
-    
+
     Args:
         ticker (str): Stock ticker symbol
         data_summary (str): Summary of stock data metrics
         timestamp (str): Timestamp for report generation
-        
+
     Returns:
         str: Formatted prompt for Gemini model
     """
     return f"""
-You are a senior stock analyst trader with 20+ years of experience in equity research and technical analysis. 
+You are a senior stock analyst trader with 20+ years of experience in equity research and \
+technical analysis.
 
-You are preparing a comprehensive professional-grade investment report for {ticker}, intended for veteran retail traders and institutional ones alike. 
-Analyze the following data and charts to deliver a comprehensive, highly professional technical report with actionable investment recommendations.
+You are preparing a comprehensive professional-grade investment report for {ticker}, intended \
+for veteran retail traders and institutional ones alike.
+Analyze the following data and charts to deliver a comprehensive, highly professional technical \
+report with actionable investment recommendations.
 
 Here is a summary of relevant stock data of a 6 month time-span:
 {data_summary}
 
-I'm providing you with 3 key technical analysis charts. 
-All charts are based on the 6 month time-span with 24hr candles. 
-Use this timeframe in your analysis unless trends or signals suggest zooming in (intraday) or out (weekly/monthly)
+I'm providing you with 3 key technical analysis charts.
+All charts are based on the 6 month time-span with 24hr candles.
+Use this timeframe in your analysis unless trends or signals suggest zooming in (intraday) or \
+out (weekly/monthly)
 Charts:
-1. **Price Trend with Moving Averages**: Candlestick chart showing price action with SMA 20 and SMA 50 overlays
-2. **MACD Indicator**: Momentum indicator showing MACD line, signal line, histogram, and a black line for price
+1. **Price Trend with Moving Averages**: Candlestick chart showing price action with SMA 20 and \
+SMA 50 overlays
+2. **MACD Indicator**: Momentum indicator showing MACD line, signal line, histogram, and a black \
+line for price
 3. **RSI Indicator**: Relative Strength Index showing overbought/oversold conditions (0-100 scale)
 
 Please provide a detailed, professional analysis covering:
@@ -79,7 +85,8 @@ Please provide a detailed, professional analysis covering:
 - Correlation with major indices
 
 ## PRICE TARGETS & SCENARIOS
-Include rough probability weightings for each scenario (e.g., Bull Case: 30%, Base Case: 50%, Bear Case: 20%)
+Include rough probability weightings for each scenario (e.g., Bull Case: 30%, Base Case: 50%, \
+Bear Case: 20%)
 
 ### Bull Case Scenario
 - Catalysts that could drive higher prices
@@ -105,8 +112,10 @@ Include rough probability weightings for each scenario (e.g., Bull Case: 30%, Ba
 - Time-based factors (earnings, events)
 - Market conditions to monitor
 
-Please make your analysis highly specific with exact price levels, percentages, and technical pattern names. 
-Use professional investment terminology and provide actionable insights that a real investor would expect.
+Please make your analysis highly specific with exact price levels, percentages, and technical \
+pattern names.
+Use professional investment terminology and provide actionable insights that a real investor \
+would expect.
 Experienced officals have spent important money, this must be of use to them.
 
 Report generated on: {timestamp}
